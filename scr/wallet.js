@@ -43,6 +43,7 @@ class Wallet {
         };
         
         if (proxy) {
+            this.proxy = proxy;
             const proxyAgent  = new SocksProxyAgent(
                 `socks5://${this.proxy.login}:${this.proxy.password}@${this.proxy.host}:${this.proxy.port}`
             );

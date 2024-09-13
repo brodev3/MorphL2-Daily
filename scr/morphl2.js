@@ -1,10 +1,8 @@
-const utils = require('./utils/utils');
 const log = require('./utils/logger')
 const crypto = require('crypto');
 const CryptoJS = require('crypto-js');
 const axiRetry = require("./utils/axiRetry");
 const { Web3 } = require('web3');
-const { error } = require('console');
 const web3 = new Web3();
 
 
@@ -83,8 +81,6 @@ class Morphl2 {
 
         return true;
     };
-
-    
     
 };
 
