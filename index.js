@@ -3,7 +3,6 @@ const Morphl2 = require('./scr/morphl2');
 const utils = require('./scr/utils/utils');
 const log = require('./scr/utils/logger');
 const fs = require('fs/promises');
-const { watchFile } = require('fs');
 
 const dapp = new Morphl2();
 
