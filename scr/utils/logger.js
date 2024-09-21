@@ -41,7 +41,7 @@ function logMessage(priority, message) {
     const color = getColor(priority);
     const logEntry = `${timestamp} >>> ${priority.toUpperCase()} | ${message}`;
 
-    if (priority.toLowerCase() !== 'debug') {
+    if (priority.toLowerCase() !== '') {
         console.log(color + logEntry + '\x1b[0m');
     }
 
