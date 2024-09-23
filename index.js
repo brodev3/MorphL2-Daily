@@ -100,8 +100,16 @@ async function main() {
     const wallets = [];
     for (let index =  0; index < data.length; index++) {
         const row = data[index];
-        const privateKey = row.split(":")[0];
-        const proxy = row.split(":")[1] ? row.split(":")[1] : null;
+        const privateKey = row.split(";")[0];
+        let proxy = row.split(";")[1] ? row.split(";")[1] : null;
+        if (proxy) 
+            proxy = {
+                host: proxy.split(":")[0],
+                port: proxy.split(":")[1],
+                login: proxy.split(":")[2],
+                password: proxy.split(":")[3],
+            };
+
         const wallet = new Wallet(privateKey, proxy);
         const delay = Math.floor(Math.random() * (10_000 - 0 + 1)) + 0;
         setTimeout(collect, delay, wallet);
