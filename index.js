@@ -112,7 +112,7 @@ async function main() {
 
         const wallet = new Wallet(privateKey, proxy);
         const delay = Math.floor(Math.random() * (10_000 - 0 + 1)) + 0;
-        setTimeout(collect, delay, wallet);
+        setTimeout(daily, delay, wallet);
         wallets.push(wallet);
     };
 };

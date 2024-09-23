@@ -58,7 +58,7 @@ class Morphl2 {
 
         const response = await axiRetry.post(url, body, wallet.axios);
 
-        if (response.data.code != 1000){
+        if (response.data.code != 1000 || response.data.code != 1002){
             log.error(`Wallet: ${wallet.address}. Daily Check-in returned wrong code! Code: ${response.data.code}. Message: ${response.data.message}`);
             throw new Error(`Check-in returned wrong code! Code: ${response.data.code}. Message: ${response.data.message}`);
         };
@@ -81,7 +81,7 @@ class Morphl2 {
 
         const response = await axiRetry.post(url, body, wallet.axios);
 
-        if (response.data.code != 1000){
+        if (response.data.code != 1000 || response.data.code != 1002){
             log.error(`Wallet: ${wallet.address}. Open Mystery Box returned wrong code! Code: ${response.data.code}. Message: ${response.data.message}`);
             throw new Error(`Mystery Box returned wrong code! Code: ${response.data.code}. Message: ${response.data.message}`);
         };
