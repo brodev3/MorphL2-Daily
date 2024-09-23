@@ -95,27 +95,18 @@ const vote = async (wallet) => {
     };
 };
 
-async function readFile(fileName) {
-    const data = await fs.readFile(__dirname + '/input/' + fileName, 'utf8');
-    const lines = data.split('\n');
-    return lines;
-};
-
 async function main() {
-    const proxys = await readFile('proxy.txt');
+    const data = await utils.readDecryptCSVToArray();
     const wallets = [];
-    for (let index = 0; index < proxys.length; index++) {
-        const element = proxys[index].replace(/[\r\n]+/g, '');
-        const proxy = {
-            host: element.split(":")[0],
-            port: element.split(":")[1],
-            login: element.split(":")[2],
-            password: element.split(":")[3],
-        };
-        wallets.push(new Wallet(null, proxy));
+    for (let index =  0; index < data.length; index++) {
+        const row = data[index];
+        const privateKey = row.split(":")[0];
+        const proxy = row.split(":")[1] ? row.split(":")[1] : null;
+        const wallet = new Wallet(privateKey, proxy);
+        const delay = Math.floor(Math.random() * (10_000 - 0 + 1)) + 0;
+        setTimeout(collect, delay, wallet);
+        wallets.push(wallet);
     };
-
-    wallets.forEach(daily);
-}
+};
 
 main();
