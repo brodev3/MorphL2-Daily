@@ -22,16 +22,18 @@ class Wallet {
         this.address = this.wallet.address;
         this.privateKey = this.wallet.privateKey;
 
+        let ua = utils.get_UA();
+
         const options = {
             headers: { 
-                'User-Agent': utils.get_UA(),
+                'User-Agent': ua.userAgent,
                 "accept": "application/json, text/plain, */*",
-                "accept-language": "en-US;q=0.8,en;q=0.7",
+                "accept-language": utils.get_Local(),
                 "authorization": "Bearer",
                 "cache-control": "no-cache",
                 "pragma": "no-cache",
                 "priority": "u=1, i",
-                "sec-ch-ua": "\"Chromium\";v=\"128\", \"Not;A=Brand\";v=\"24\", \"Google Chrome\";v=\"128\"",
+                "sec-ch-ua": ua.componentUserAgent,
                 "sec-ch-ua-mobile": "?0",
                 "sec-ch-ua-platform": "\"Windows\"",
                 "sec-fetch-dest": "empty",

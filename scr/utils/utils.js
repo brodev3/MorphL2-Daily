@@ -42,22 +42,63 @@ async function readDecryptCSVToArray() {
   });
 };
 
-const userAgents = [
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.6367.78 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.128 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.6312.87 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.6151.58 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.58 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.1253.31 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6144.49 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.3575.24 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.7453.4 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.8422.34 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.2349.75 Safari/537.36",
+const locals = [
+  "de-DE", // German (Germany)
+  "en-GB", // English (UK)
+  "en-US", // English (US)
+  "fr-FR", // French (France)
+  "es-ES", // Spanish (Spain)
+  "pt-BR", // Portuguese (Brazil)
+  "zh-CN", // Chinese (Simplified, China)
+  "ru-RU", // Russian (Russia)
+  "it-IT", // Italian (Italy)
+  "ko-KR", // Korean (South Korea)
+  "ja-JP", // Japanese (Japan)
+  "nl-NL", // Dutch (Netherlands)
+  "sv-SE", // Swedish (Sweden)
+  "pl-PL", // Polish (Poland)
+  "fi-FI", // Finnish (Finland)
+  "no-NO", // Norwegian (Norway)
+  "da-DK", // Danish (Denmark)
+  "ar-SA", // Arabic (Saudi Arabia)
+  "he-IL", // Hebrew (Israel)
+  "tr-TR", // Turkish (Turkey)
+  "cs-CZ", // Czech (Czech Republic)
+  "hu-HU", // Hungarian (Hungary)
+  "el-GR", // Greek (Greece)
+  "th-TH", // Thai (Thailand)
+  "vi-VN", // Vietnamese (Vietnam)
+  "id-ID", // Indonesian (Indonesia)
+  "ms-MY", // Malay (Malaysia)
+  "uk-UA", // Ukrainian (Ukraine)
+  "ro-RO", // Romanian (Romania)
+  "sk-SK"  // Slovak (Slovakia)
 ];
 
-let get_UA = function () {
-  return userAgents[Math.floor(Math.random() * userAgents.length)];
+function get_UA() {
+  const majorVersion = Math.floor(Math.random() * (129 - 115 + 1)) + 115; // 115-129
+  const buildVersion = Math.floor(Math.random() * 9000) + 1000; // 1000-9999
+  const patchVersion = Math.floor(Math.random() * 90) + 10; // 10-99
+
+  const userAgent = `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${majorVersion}.0.${buildVersion}.${patchVersion} Safari/537.36`;
+
+  const randomBrandChar = () => {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    return chars.charAt(Math.floor(Math.random() * chars.length));
+  };
+
+  const notABrand = `Not=${randomBrandChar()}${randomBrandChar()}${randomBrandChar()}?Brand`;
+
+  const componentUserAgent = `"Google Chrome";v="${majorVersion}", "${notABrand}";v="8", "Chromium";v="${majorVersion}"`;
+
+  return {
+    userAgent: userAgent,
+    componentUserAgent: componentUserAgent
+  };
+}
+
+let get_Local = function () {
+  return locals[Math.floor(Math.random() * locals.length)];
 };
 
 const timeToNextDay = () => {
@@ -82,6 +123,9 @@ const timeToNextDay = () => {
     return randomDateUTC - nowUTC;
 };
 
-module.exports.get_UA = get_UA;
-module.exports.timeToNextDay = timeToNextDay;
-module.exports.readDecryptCSVToArray = readDecryptCSVToArray;
+module.exports = {
+  get_Local,
+  get_UA,
+  timeToNextDay,
+  readDecryptCSVToArray
+};

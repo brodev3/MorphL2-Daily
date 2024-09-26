@@ -9,7 +9,7 @@ async function delay(delayTime) {
 };
 
 async function get(url, instance = axios, headers = null, retriesLeft = 5) {
-    let response = await instance.get(url, {headers}).catch(async error => {
+    let response = await instance.get(url, headers ? headers:null).catch(async error => {
         if (retriesLeft > 0) {
             log.debug(`AxiRetry: retrying left ${retriesLeft}`);
             await delay(getDelayTime(5 - retriesLeft));
@@ -23,7 +23,7 @@ async function get(url, instance = axios, headers = null, retriesLeft = 5) {
 };
 
 async function post(url, body, instance = axios, headers = null, retriesLeft = 5) {
-    let response = await instance.post(url, body, {headers}).catch(async error => {
+    let response = await instance.post(url, body, headers ? headers:null).catch(async error => {
         if (retriesLeft > 0) {
             log.debug(`AxiRetry: retrying left ${retriesLeft}`)
             await delay(getDelayTime(5 - retriesLeft));
