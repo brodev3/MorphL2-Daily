@@ -18,7 +18,7 @@ This software allows users to automatically collect daily rewards from morphl2.i
 ## Features
 - Randomized voting to ensure all votes are utilized in each voting session.
 - Supports user masking and simulation.
-- Operates with requests and a single transaction in the BSC network, requiring a BNB fee for claiming.
+- Operates with requests.
 - Supports SOCKS5 proxies.
 - Randomly collects rewards throughout the day and during the first launch within the specified MAXTIME.
 
