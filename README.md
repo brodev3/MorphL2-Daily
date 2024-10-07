@@ -61,7 +61,7 @@ Fill out the ```w.csv``` file with the wallets to be used for token transfers. T
     ```
     npm install
     ```
-8. Run the software, and it will transfer tokens from the specified wallets to the respective addresses. All accounts will start after a random delay, determined between 1 second and the value specified in MAXTIME.
+8. Run the software, and it will collect daily rewards. All accounts will start after a random delay, determined between 1 second and the value specified in MAXTIME.
     ```
     node index
     ```
