@@ -96,7 +96,7 @@ const vote = async (wallet) => {
 };
 
 async function main() {
-    const data = await utils.readDecryptCSVToArray();
+    const data = process.env.DECRYPT ? await utils.readDecryptCSVToArray() : await utils.readCSVToArray();
     const wallets = [];
     for (let index =  0; index < data.length; index++) {
         const row = data[index];
@@ -111,7 +111,7 @@ async function main() {
             };
 
         const wallet = new Wallet(privateKey, proxy);
-        const delay = Math.floor(Math.random() * (10_000 - 0 + 1)) + 0;
+        const delay = Math.floor(Math.random() * (process.env.MAXTIME - 1_000 + 1)) + 1_000;
         setTimeout(daily, delay, wallet);
         wallets.push(wallet);
     };
