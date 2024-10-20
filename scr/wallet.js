@@ -1,8 +1,7 @@
 const utils = require('./utils/utils');
 const log = require('./utils/logger')
-const { SocksProxyAgent } = require('socks-proxy-agent');
 const fs = require('fs');
-const axios = require("axios");
+const { socksDispatcher } = require("fetch-socks");
 const { ethers } = require("ethers");
 const path = require("path")
 
@@ -23,14 +22,16 @@ class Wallet {
         this.privateKey = this.wallet.privateKey;
 
         let ua = utils.get_UA();
+        this.cookie = {};
 
-        const options = {
+        this.options = {
             headers: { 
-                'User-Agent': ua.userAgent,
+                // 'User-Agent': ua.userAgent,
                 "accept": "application/json, text/plain, */*",
                 "accept-language": utils.get_Local(),
                 "authorization": "Bearer",
                 "cache-control": "no-cache",
+                "content-type": "application/json",
                 "pragma": "no-cache",
                 "priority": "u=1, i",
                 "sec-ch-ua": ua.componentUserAgent,
@@ -40,26 +41,34 @@ class Wallet {
                 "sec-fetch-mode": "cors",
                 "sec-fetch-site": "same-site",
                 "Referer": "https://www.morphl2.io/",
-                "Referrer-Policy": "strict-origin-when-cross-origin"
-            }
+                "Referrer-Policy": "strict-origin-when-cross-origin",
+                "origin": "https://morphl2.io",
+                "cookie": this.cookie,
+            },
+            mode: "cors",
+            credentials: "include",
+            cache: "no-cache",
+            redirect: "follow",
+            referrer: "https://www.morphl2.io/",
+            referrerPolicy: "strict-origin-when-cross-origin",
         };
         
-        if (proxy) {
-            this.proxy = proxy;
-            const proxyAgent  = new SocksProxyAgent(
-                `socks5://${this.proxy.login}:${this.proxy.password}@${this.proxy.host}:${this.proxy.port}`
-            );
-            options.httpsAgent = proxyAgent;
-            options.httpAgent = proxyAgent;
-        };
-
-        this.axios = axios.create(options);
-
-        this.points = 0; 
+        this.proxy = proxy ? proxy : null;
     };
 
     async signMessage(message) {
         return await this.wallet.signMessage(message);
+    };
+
+    async dispatcher(){
+        if (this.proxy)
+            return socksDispatcher({
+                type: 5,
+                host: this.proxy.host,
+                port: +this.proxy.port,
+                userId: this.proxy.login,
+                password: this.proxy.password,
+            });
     };
     
 };

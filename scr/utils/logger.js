@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require("path")
 
+
 const LOG_FILE = path.resolve(path.resolve(__dirname, '..'), '..') + "/output/log.txt";
 const LOG_DIR = path.resolve(path.resolve(__dirname, '..'), '..') + "/output";
 
@@ -14,7 +15,7 @@ function getColor(priority) {
     switch (priority.toLowerCase()) {
         case 'success':
             return '\x1b[38;5;2m';
-        case 'fail':
+        case 'fatal':
             return '\x1b[38;5;209m';
         case 'error':
             return '\x1b[38;5;1m';
@@ -41,22 +42,50 @@ function logMessage(priority, message) {
     const color = getColor(priority);
     const logEntry = `${timestamp} >>> ${priority.toUpperCase()} | ${message}`;
 
-    if (priority.toLowerCase() !== '') {
+    if (priority.toLowerCase() !== '') 
         console.log(color + logEntry + '\x1b[0m');
-    }
 
-    fs.appendFile(LOG_FILE, logEntry + '\n', (err) => {
-        if (err) {
+    fs.appendFileSync(LOG_FILE, logEntry + '\n', (err) => {
+        if (err) 
             console.error('Error writing to the log file:', err);
-        }
     });
-}
+};
 
 module.exports = {
     success: (message) => logMessage('success', message),
     info: (message) => logMessage('info', message),
     error: (message) => logMessage('error', message),
     debug: (message) => logMessage('debug', message),
-    fail: (message) => logMessage('fail', message),
-    warn: (message) => logMessage('warn', message)
+    fatal: (message) => logMessage('fatal', message),
+    warn: (message) => logMessage('warn', message),
+    successDB: async (wallet, action, message, stack = null) => {
+        const { addLog } = require('../db/db');
+        logMessage('success', `${wallet?.address ? `Wallet: ${wallet.address}. ` : ''}` + message);
+        await addLog(wallet, "SUCCESS", action, message, stack);
+    },
+    infoDB: async (wallet, action, message, stack = null) => {
+        const { addLog } = require('../db/db');
+        logMessage('info', `${wallet?.address ? `Wallet: ${wallet.address}. ` : ''}` + message);
+        await addLog(wallet, "INFO", action, message, stack);
+    }, 
+    errorDB: async (wallet, action, message, stack = null) => {
+        const { addLog } = require('../db/db');
+        logMessage('error', `${wallet?.address ? `Wallet: ${wallet.address}. ` : ''}Error ` + action + `: ` + message + `\nStack: ` + stack);
+        await addLog(wallet, "ERROR", action, message, stack);
+    }, 
+    debugDB: async (wallet, action, message, stack = null) => {
+        const { addLog } = require('../db/db');
+        logMessage('debug', `${wallet?.address ? `Wallet: ${wallet.address}. ` : ''}` + message);
+        await addLog(wallet, "DEBUG", action, message, stack);
+    }, 
+    fatalDB: async (wallet, action, message, stack = null) => {
+        const { addLog } = require('../db/db');
+        logMessage('fatal', `${wallet?.address ? `Wallet: ${wallet.address}. ` : ''}Error ` + action + `: ` + message + `\nStack: ` + stack);
+        await addLog(wallet, "FATAL", action, message, stack);
+    }, 
+    warnDB: async (wallet, action, message, stack = null) => {
+        const { addLog } = require('../db/db');
+        logMessage('warn', `${wallet?.address ? `Wallet: ${wallet.address}. ` : ''}` + message);
+        await addLog(wallet, "WARN", action, message, stack);
+    }
 };

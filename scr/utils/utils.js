@@ -2,9 +2,11 @@ const fs = require('fs');
 const crypto = require('crypto');
 const csv = require('csv-parser');
 require('dotenv').config();  
-const path = require("path")
+const path = require("path");
+const config = require("../../input/config");
+const log = require("./logger");
 
-const secretKey = crypto.createHash('sha256').update(process.env.MESSAGE).digest();
+const secretKey = crypto.createHash('sha256').update(config.decryption.message).digest();
 const inputFilePath = path.resolve(path.resolve(__dirname, '..'), '..') + '/input/w.csv';
 
 function decrypt(text, secretKey) {
@@ -30,8 +32,30 @@ async function readDecryptCSVToArray() {
         decryptedRows.push(decryptedRow);
       })
       .on('end', () => {
-        console.log('Файл успешно расшифрован.');
+        log.info('The w.csv file was successfully decrypted');
         const result = decryptedRows.map(row => {
+          return Object.values(row).join(','); 
+        });
+        resolve(result);
+      })
+      .on('error', (error) => {
+        reject(error);
+      });
+  });
+};
+
+async function readCSVToArray() {
+  return new Promise((resolve, reject) => {
+    const rows = [];
+
+    fs.createReadStream(inputFilePath)
+      .pipe(csv())
+      .on('data', (row) => {
+        rows.push(row);
+      })
+      .on('end', () => {
+        log.info('The w.csv file was read successfully');
+        const result = rows.map(row => {
           return Object.values(row).join(','); 
         });
         resolve(result);
@@ -76,29 +100,29 @@ const locals = [
 ];
 
 function get_UA() {
-  const majorVersion = Math.floor(Math.random() * (129 - 115 + 1)) + 115; // 115-129
-  const buildVersion = Math.floor(Math.random() * 9000) + 1000; // 1000-9999
-  const patchVersion = Math.floor(Math.random() * 90) + 10; // 10-99
+    const majorVersion = Math.floor(Math.random() * (129 - 115 + 1)) + 115; // 115-129
+    const buildVersion = Math.floor(Math.random() * 9000) + 1000; // 1000-9999
+    const patchVersion = Math.floor(Math.random() * 90) + 10; // 10-99
 
-  const userAgent = `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${majorVersion}.0.${buildVersion}.${patchVersion} Safari/537.36`;
+    const userAgent = `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${majorVersion}.0.${buildVersion}.${patchVersion} Safari/537.36`;
 
-  const randomBrandChar = () => {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    return chars.charAt(Math.floor(Math.random() * chars.length));
-  };
+    const randomBrandChar = () => {
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        return chars.charAt(Math.floor(Math.random() * chars.length));
+    };
 
-  const notABrand = `Not=${randomBrandChar()}${randomBrandChar()}${randomBrandChar()}?Brand`;
+    const notABrand = `Not=${randomBrandChar()}${randomBrandChar()}${randomBrandChar()}?Brand`;
 
-  const componentUserAgent = `"Google Chrome";v="${majorVersion}", "${notABrand}";v="8", "Chromium";v="${majorVersion}"`;
+    const componentUserAgent = `"Google Chrome";v="${majorVersion}", "${notABrand}";v="8", "Chromium";v="${majorVersion}"`;
 
-  return {
-    userAgent: userAgent,
-    componentUserAgent: componentUserAgent
-  };
+    return {
+        userAgent: userAgent,
+        componentUserAgent: componentUserAgent
+    };
 }
 
 let get_Local = function () {
-  return locals[Math.floor(Math.random() * locals.length)];
+    return locals[Math.floor(Math.random() * locals.length)];
 };
 
 const timeToNextDay = () => {
@@ -123,26 +147,38 @@ const timeToNextDay = () => {
     return randomDateUTC - nowUTC;
 };
 
-async function readCSVToArray() {
-  return new Promise((resolve, reject) => {
-    const rows = [];
+const fixedTimeToNextDay = (timeString, timezoneOffset) => {
+    const [hours, minutes] = timeString.split(':').map(Number);
 
-    fs.createReadStream(inputFilePath)
-      .pipe(csv())
-      .on('data', (row) => {
-        rows.push(row);
-      })
-      .on('end', () => {
-        console.log('File reading success.');
-        const result = rows.map(row => {
-          return Object.values(row).join(','); 
-        });
-        resolve(result);
-      })
-      .on('error', (error) => {
-        reject(error);
-      });
-  });
+    const now = new Date();
+
+    const nextDayStartUTC = new Date(Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate() + 1,
+        0,
+        0,
+        0
+    ));
+
+    const fixedTimeUTC = new Date(nextDayStartUTC.getTime() + 
+        hours * 60 * 60 * 1000 + 
+        minutes * 60 * 1000 
+    );
+
+    const offsetInMs = timezoneOffset * 60 * 60 * 1000;
+    const adjustedTimeUTC = new Date(fixedTimeUTC.getTime() - offsetInMs);
+
+    return adjustedTimeUTC.getTime() - now.getTime();
+};
+
+const parseDateToTimestamp = (dateString, timezoneOffset) => {
+    const [datePart, timePart] = dateString.split('-');
+    const [day, month, year] = datePart.split('.').map(Number);
+    const [hours, minutes] = timePart.split(':').map(Number);
+    const date = new Date(Date.UTC(2000 + year, month - 1, day, hours, minutes));
+    const offsetInMs = timezoneOffset * 60 * 60 * 1000;
+    return date.getTime() - offsetInMs;
 };
 
 module.exports = {
@@ -150,5 +186,8 @@ module.exports = {
   get_UA,
   timeToNextDay,
   readDecryptCSVToArray,
-  readCSVToArray
+  readCSVToArray,
+  parseDateToTimestamp,
+  fixedTimeToNextDay
 };
+

@@ -1,10 +1,9 @@
 const log = require('./utils/logger')
 const crypto = require('crypto');
 const CryptoJS = require('crypto-js');
-const axiRetry = require("./utils/axiRetry");
 const { Web3 } = require('web3');
 const web3 = new Web3();
-
+const fetcher = require("./utils/fetcher");
 
 class Morphl2 {
 
@@ -14,14 +13,14 @@ class Morphl2 {
 
     async getStats(wallet) {
         const url = this.baseURL + "activities/personal_stats" + "?address=" + wallet.address;
-        const response = await axiRetry.get(url, wallet.axios);
-        return response.data.data;
+        const response = await fetcher.get(url, wallet);
+        return response.data;
     };
 
     async getProjects(wallet) {
         const url = this.baseURL + "activities/project_stats" + "?address=" + wallet.address;
-        const response = await axiRetry.get(url, wallet.axios);
-        return response.data.data.list;
+        const response = await fetcher.get(url, wallet);
+        return response.data.list;
     };
 
     async getData(wallet, projectId = null, votingPower = undefined) {
@@ -56,11 +55,13 @@ class Morphl2 {
             signature: signTx
         };
 
-        const response = await axiRetry.post(url, body, wallet.axios);
+        const response = await fetcher.post(url, body, wallet);
 
-        if (response.data.code != 1000 && response.data.code != 1002){
-            log.error(`Wallet: ${wallet.address}. Daily Check-in returned wrong code! Code: ${response.data.code}. Message: ${response.data.message}`);
-            throw new Error(`Check-in returned wrong code! Code: ${response.data.code}. Message: ${response.data.message}`);
+        if (response.code != 1000 && response.code != 1002){
+                if (response.code == 1001)
+                    return await log.infoDB(wallet, "checkin", `You've opened the box today`);
+            await log.errorDB(wallet, "checkin", `Daily Check-in returned wrong code! Code: ${response.code}. Message: ${response.message}`);
+            throw new Error(`Check-in returned wrong code! Code: ${response.code}. Message: ${response.message}`);
         };
 
         return true;
@@ -79,11 +80,13 @@ class Morphl2 {
             signature: signTx
         };
 
-        const response = await axiRetry.post(url, body, wallet.axios);
+        const response = await fetcher.post(url, body, wallet);
 
-        if (response.data.code != 1000 && response.data.code != 1002){
-            log.error(`Wallet: ${wallet.address}. Open Mystery Box returned wrong code! Code: ${response.data.code}. Message: ${response.data.message}`);
-            throw new Error(`Mystery Box returned wrong code! Code: ${response.data.code}. Message: ${response.data.message}`);
+        if (response.code != 1000 && response.code != 1002){
+            if (response.code == 1001)
+                return await log.infoDB(wallet, "checkin", `You've opened the box today`);
+            await log.errorDB(wallet, "checkin", `Open Mystery Box returned wrong code! Code: ${response.code}. Message: ${response.message}`);
+            throw new Error(`Mystery Box returned wrong code! Code: ${response.code}. Message: ${response.message}`);
         };
 
         return true;
@@ -102,11 +105,13 @@ class Morphl2 {
             signature: signTx
         };
 
-        const response = await axiRetry.post(url, body, wallet.axios);
+        const response = await fetcher.post(url, body, wallet);
 
-        if (response.data.code != 1000 && response.data.code != 1002){
-            log.error(`Wallet: ${wallet.address}. Vote returned wrong code! Code: ${response.data.code}. Message: ${response.data.message}`);
-            throw new Error(`Vote returned wrong code! Code: ${response.data.code}. Message: ${response.data.message}`);
+        if (response.code != 1000 && response.code != 1002){
+            if (response.code == 1001)
+                return await log.infoDB(wallet, "checkin", `You've opened the box today`);
+            await log.errorDB(wallet, "checkin", `Vote returned wrong code! Code: ${response.code}. Message: ${response.message}`);
+            throw new Error(`Vote returned wrong code! Code: ${response.code}. Message: ${response.message}`);
         };
 
         return true;
