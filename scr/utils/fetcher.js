@@ -1,7 +1,7 @@
 const log = require('./logger');
 
 function getDelayTime(retryCount) {
-    return Math.pow(2, retryCount) * 1000; 
+    return Math.pow(2, retryCount) * 10_000; 
 };
 
 async function delay(delayTime) {
